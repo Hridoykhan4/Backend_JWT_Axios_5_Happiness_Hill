@@ -30,12 +30,16 @@ async function run() {
 
         /* Room related APIs start */
         app.get('/rooms', async (req, res) => {
-            const result = await roomCollection.find().toArray()
+            const { featuredRooms } = req.query;
+            let cursor = roomCollection.find();
+            if (featuredRooms === 'featured') {
+                cursor = cursor.limit(5)
+            }
+            const result = await cursor.toArray()
             res.send(result)
         })
         /* Room related APIs end */
 
-        
 
 
 
