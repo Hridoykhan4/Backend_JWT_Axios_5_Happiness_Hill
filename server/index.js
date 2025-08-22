@@ -27,7 +27,7 @@ app.use(express.json())
 
 // MiddleWare End
 
-const uri = "mongodb+srv://hridoykhan148385:SUByXmuSE9Gft4Kk@happiness-hill.1es2bek.mongodb.net/?retryWrites=true&w=majority&appName=Happiness-Hill";
+const uri = `mongodb+srv://${process.env.HAPPINESS_USER}:${process.env.HAPPINESS_PASS}@happiness-hill.1es2bek.mongodb.net/?retryWrites=true&w=majority&appName=Happiness-Hill`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
