@@ -42,6 +42,7 @@ async function run() {
     try {
         const roomCollection = client.db('HappinessHill').collection('rooms')
         const customerCollection = client.db('HappinessHill').collection('customers')
+        const reviewCollection = client.db('HappinessHill').collection('reviews')
 
 
         /* Room related APIs start */
@@ -67,10 +68,30 @@ async function run() {
             const email = req.params.email;
             const result = await roomCollection.find({ 'ownerInfo.email': email }).toArray();
             res.send(result)
-
         })
 
+        // Update a room by owner
+        app.put('/rooms/:id', async (req, res) => {
+            const room = req.body;
+            const filter = { _id: new ObjectId(req.params.id) };
+            const updateRoom = {
+                $set: room
+            }
+            const result = await roomCollection.updateOne(filter, updateRoom);
+            res.send(result)
+        })
 
+        // Delete a room by owner
+        app.delete('/rooms/:id', async (req, res) => {
+            const query = { _id: new ObjectId(req.params.id) };
+            const result = await roomCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        // Post a room
+        app.post('/room', async (req, res) => {
+            res.send(await roomCollection.insertOne(req.body))
+        })
 
 
         /* Room related APIs end */
@@ -91,6 +112,17 @@ async function run() {
 
         /* Customer related APIs end */
 
+
+
+        /* Review APIs start */
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        })
+
+
+        /* Review APIs end */
 
 
 

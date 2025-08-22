@@ -6,7 +6,7 @@ const Room = ({ room , children}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.03 }}
       transition={{
         type: "spring",
@@ -19,11 +19,11 @@ const Room = ({ room , children}) => {
       className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl overflow-hidden max-w-sm mx-auto border border-gray-200 dark:border-zinc-700 hover:border-violet-500 transition-colors duration-300 group"
     >
       {/* Room Image */}
-      {/*  <motion.img
-        src={room.image[0]}
+       <motion.img
+        src={room.image}
         alt={room.title}
         className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-      /> */}
+      />
 
       {/* Room Info */}
       <div className="p-6 flex flex-col justify-between min-h-[250px]">

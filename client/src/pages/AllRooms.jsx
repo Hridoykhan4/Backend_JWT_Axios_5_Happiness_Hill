@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Room from "../components/Room";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 const AllRooms = () => {
+  useScrollToTop();
   const {
     data: rooms = [],
     isLoading,
@@ -15,9 +17,9 @@ const AllRooms = () => {
       const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/rooms`);
       return data;
     },
-      staleTime: 1000 * 60 * 5,
-      cacheTime: 1000 * 60 * 10,
-      refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) {

@@ -5,7 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import router from "./router/router.jsx";
 import AuthProvider from "./Provider/Authentication/AuthProvider.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import  { Toaster } from 'react-hot-toast';
 
 const queryClient = new QueryClient();
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
@@ -13,6 +13,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+          <Toaster />
         <RouterProvider router={router}></RouterProvider>
       </AuthProvider>
     </QueryClientProvider>

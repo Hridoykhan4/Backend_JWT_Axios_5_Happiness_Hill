@@ -177,12 +177,21 @@ const Navbar = () => {
                     role="menu"
                   >
                     {user?.email === "hridoykhan148385@gmail.com" && (
-                      <Link
-                        to={"/my-posts"}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      >
-                        My Posts (Admin)
-                      </Link>
+                      <>
+                        <Link
+                          to={"/add-room"}
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          Add Room (Admin)
+                        </Link>
+
+                        <Link
+                          to={"/my-posts"}
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          My Rooms (Admin)
+                        </Link>
+                      </>
                     )}
                     {avatarDropdownLinks.map((item) => (
                       <Link

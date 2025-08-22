@@ -6,6 +6,9 @@ import Login from "../pages/Login";
 import AllRooms from "../pages/AllRooms";
 import RoomDetails from "../pages/RoomDetails";
 import MyPosts from "../pages/MyPosts";
+import UpdateRoom from "../pages/UpdateRoom";
+import { AddRoom } from "../pages/AddRoom";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -26,14 +29,25 @@ const router = createBrowserRouter([
         element: <AllRooms></AllRooms>,
       },
       {
-        path: '/rooms/:id',
-        element: <RoomDetails></RoomDetails>
+        path: "/rooms/:id",
+        element: <RoomDetails></RoomDetails>,
       },
       {
-        path: '/my-posts',
-        element: <MyPosts></MyPosts>
+        path: "/my-posts",
+        element: <MyPosts></MyPosts>,
       },
-      
+      {
+        path: "/update-room/:id",
+        element: <UpdateRoom></UpdateRoom>,
+      },
+      {
+        path: "/add-room",
+        element: (
+          <PrivateRoute>
+            <AddRoom></AddRoom>
+          </PrivateRoute>
+        ),
+      },
     ],
   },
 ]);
