@@ -1,20 +1,25 @@
-// eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { easeOut, motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
-const Room = ({ room }) => {
-  const navigate = useNavigate();
-
+const Room = ({ room , children}) => {
+  const MotionLink = motion.create(Link);
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.03 }}
-      transition={{ type: "spring", stiffness: 120, damping: 15 }}
+      transition={{
+        type: "spring",
+        stiffness: 120,
+        damping: 15,
+        duration: 2,
+        ease: easeOut,
+        delay: 0.3,
+      }}
       className="bg-white dark:bg-zinc-900 shadow-lg rounded-3xl overflow-hidden max-w-sm mx-auto border border-gray-200 dark:border-zinc-700 hover:border-violet-500 transition-colors duration-300 group"
     >
       {/* Room Image */}
-     {/*  <motion.img
+      {/*  <motion.img
         src={room.image[0]}
         alt={room.title}
         className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
@@ -52,14 +57,15 @@ const Room = ({ room }) => {
         </div>
 
         {/* View Details Button */}
-        <motion.button
+        <MotionLink
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate(`/rooms/${room._id}`)}
+          to={`/rooms/${room._id}`}
           className="mt-6 w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-xl transition-shadow duration-300"
         >
           View Details
-        </motion.button>
+        </MotionLink>
+        {children}
       </div>
     </motion.div>
   );

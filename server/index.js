@@ -1,13 +1,28 @@
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 
 
+
+/* Options Start */
+const corsOptions = {
+    origin: ['http://localhost:5173'],
+    credentials: true,
+    optionsSuccessStatus: 200
+}
+
+
+
+/* Options End */
+
+
+
+
 // MiddleWare Start
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json())
 
 // MiddleWare End
@@ -26,20 +41,55 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         const roomCollection = client.db('HappinessHill').collection('rooms')
+        const customerCollection = client.db('HappinessHill').collection('customers')
 
 
         /* Room related APIs start */
         app.get('/rooms', async (req, res) => {
             const { featuredRooms } = req.query;
-            let cursor = roomCollection.find();
+            let cursor = roomCollection.find()
             if (featuredRooms === 'featured') {
-                cursor = cursor.limit(5)
+                cursor = cursor.sort({ "price": -1 }).limit(5)
             }
             const result = await cursor.toArray()
             res.send(result)
         })
+
+        // Get a single room
+        app.get('/rooms/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await roomCollection.findOne({ _id: new ObjectId(id) });
+            res.send(result);
+        })
+
+        // Get all post by the owner
+        app.get('/my-posted-rooms/:email', async (req, res) => {
+            const email = req.params.email;
+            const result = await roomCollection.find({ 'ownerInfo.email': email }).toArray();
+            res.send(result)
+
+        })
+
+
+
+
         /* Room related APIs end */
 
+
+        /* Customer related APIs start */
+
+        // Request for a room
+        app.post('/room-request', async (req, res) => {
+            const room = req.body;
+            const duplicateCheck = await customerCollection.findOne({ 'roomInfo.roomId': room.roomInfo.roomId, "customerInfo.email": room.customerInfo.email });
+            if (duplicateCheck) {
+                return res.status(409).send({ message: 'Already booked the room' })
+            }
+            const result = await customerCollection.insertOne(room);
+            res.send(result)
+        })
+
+        /* Customer related APIs end */
 
 
 

@@ -4,6 +4,8 @@ import ErrorPage from "../pages/ErrorPage";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import AllRooms from "../pages/AllRooms";
+import RoomDetails from "../pages/RoomDetails";
+import MyPosts from "../pages/MyPosts";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +25,15 @@ const router = createBrowserRouter([
         path: "/all-rooms",
         element: <AllRooms></AllRooms>,
       },
+      {
+        path: '/rooms/:id',
+        element: <RoomDetails></RoomDetails>
+      },
+      {
+        path: '/my-posts',
+        element: <MyPosts></MyPosts>
+      },
+      
     ],
   },
 ]);

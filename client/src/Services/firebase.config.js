@@ -1,11 +1,11 @@
 import { initializeApp } from "firebase/app";
 const firebaseConfig = {
-    apiKey: "AIzaSyCB2Kkl0kfqwYIbO3AP5FiRwdR5lnQPwKk",
-    authDomain: "hotel-happiness-hill.firebaseapp.com",
-    projectId: "hotel-happiness-hill",
-    storageBucket: "hotel-happiness-hill.firebasestorage.app",
-    messagingSenderId: "467644059610",
-    appId: "1:467644059610:web:5dc7993380578dd14a3ae3"
+    apiKey: import.meta.env.VITE_apiKey,
+    authDomain: import.meta.env.VITE_authDomain,
+    projectId: import.meta.env.VITE_projectId,
+    storageBucket: import.meta.env.VITE_storageBucket,
+    messagingSenderId: import.meta.env.VITE_messagingSenderId,
+    appId: import.meta.env.VITE_appId,
 };
 
 // Initialize Firebase

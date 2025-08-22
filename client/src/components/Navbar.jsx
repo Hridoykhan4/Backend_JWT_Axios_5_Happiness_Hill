@@ -90,7 +90,6 @@ const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const { user, theme, setTheme } = useAuthValue();
 
-
   /* Theme SetUp */
   useEffect(() => {
     const root = document.documentElement;
@@ -177,6 +176,14 @@ const Navbar = () => {
                     className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 animate-fade-in"
                     role="menu"
                   >
+                    {user?.email === "hridoykhan148385@gmail.com" && (
+                      <Link
+                        to={"/my-posts"}
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
+                        My Posts (Admin)
+                      </Link>
+                    )}
                     {avatarDropdownLinks.map((item) => (
                       <Link
                         key={item.label}

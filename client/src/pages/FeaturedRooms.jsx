@@ -38,7 +38,7 @@ const FeaturedRooms = () => {
   }
 
   return (
-    <div className="w-[96%] mx-auto">
+    <section className="w-[96%] mx-auto">
       <FeatureHeading></FeatureHeading>
       <div className="grid grid-cols-1 py-10 overflow-hidden sm:grid-cols-2 md:grid-cols-3 gap-5">
         {rooms.map((room) => (
@@ -47,7 +47,8 @@ const FeaturedRooms = () => {
       </div>
 
       <div className="text-center pb-10">
-        <Link to={'/all-rooms'}
+        <Link
+          to={"/all-rooms"}
           className="px-6 py-3 rounded-xl font-semibold 
       bg-gradient-to-r from-violet-500 to-purple-600 
       text-white shadow-md hover:shadow-xl
@@ -58,7 +59,7 @@ const FeaturedRooms = () => {
           See All Rooms
         </Link>
       </div>
-    </div>
+    </section>
   );
 };
 

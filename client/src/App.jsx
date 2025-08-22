@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 function App() {
   return (
     <>
-      <header>
+      <header className="sticky top-0 z-[999]">
         <Navbar></Navbar>
       </header>
 
