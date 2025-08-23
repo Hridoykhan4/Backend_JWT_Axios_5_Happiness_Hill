@@ -10,6 +10,8 @@ import UpdateRoom from "../pages/UpdateRoom";
 import { AddRoom } from "../pages/AddRoom";
 import PrivateRoute from "./PrivateRoute";
 import About from "../pages/About";
+import Register from "../pages/Register";
+import MyBookingRooms from "../pages/MyBookingRooms";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,18 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login></Login>,
+      },
+      {
+        path: "/register",
+        element: <Register></Register>,
+      },
+      {
+        path: "/my-booking-rooms",
+        element: (
+          <PrivateRoute>
+            <MyBookingRooms></MyBookingRooms>
+          </PrivateRoute>
+        ),
       },
       {
         path: "/all-rooms",

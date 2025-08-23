@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import useAuthValue from "../hooks/useAuthValue";
+import toast from "react-hot-toast";
 
 /* Icons Start */
 const MenuIcon = (props) => (
@@ -85,9 +86,10 @@ const MoonIcon = ({ className }) => (
 /* Icons End */
 
 const Navbar = () => {
+  const nav = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const { user, theme, setTheme } = useAuthValue();
+  const { user, theme, setTheme, logOut } = useAuthValue();
 
   /* Theme SetUp */
   useEffect(() => {
@@ -106,16 +108,49 @@ const Navbar = () => {
     { label: "Home", to: "/" },
     { label: "Rooms", to: "/all-rooms" },
     { label: "About", to: "/about" },
-  
   ];
 
-  const avatarDropdownLinks = [
-    { label: "Profile", to: "/my-profile" },
-    { label: "Log Out", to: "/logout" },
-  ];
+  const avatarDropdownLinks = [{ label: "Profile", to: "/my-profile" }];
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
+  };
+
+  const handleSignOut = async () => {
+    toast.custom((t) => (
+      <div
+        className={`${
+          t.visible ? "animate-enter" : "animate-leave"
+        } max-w-md w-full bg-white dark:bg-gray-900 shadow-lg rounded-xl pointer-events-auto flex flex-col p-4`}
+      >
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          Confirm Logout
+        </h3>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+          Are you sure you want to log out?
+        </p>
+        <div className="mt-4 flex justify-end gap-3">
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-4 py-2 rounded-lg text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              logOut().then(() => {
+                nav("/");
+                toast.success("Successfully Log out");
+              });
+            }}
+            className="px-4 py-2 rounded-lg text-sm bg-red-600 hover:bg-red-700 text-white"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -164,6 +199,7 @@ const Navbar = () => {
                 >
                   {user && (
                     <img
+                      title={user?.displayName}
                       className="w-10 h-10 rounded-full object-cover"
                       referrerPolicy="no-referrer"
                       src={user?.photoURL}
@@ -213,6 +249,12 @@ const Navbar = () => {
                         {item.label}
                       </Link>
                     ))}
+                    <button
+                      onClick={handleSignOut}
+                      className="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      Log out
+                    </button>
                   </div>
                 )}
               </div>
@@ -249,7 +291,7 @@ const Navbar = () => {
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="p-2 rounded-md dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                 aria-expanded={isMenuOpen}
               >
                 {isMenuOpen ? (
@@ -277,13 +319,22 @@ const Navbar = () => {
           ))}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
             {avatarDropdownLinks.map((item) => (
-              <Link
-                key={item.label}
-                to={item.to}
-                className="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                {item.label}
-              </Link>
+              <>
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  {item.label}
+                </Link>
+
+                <button
+                  onClick={handleSignOut}
+                  className="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  Log out
+                </button>
+              </>
             ))}
           </div>
         </div>

@@ -110,6 +110,11 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/my-bookings/:email', async (req, res) => {
+            res.send(await customerCollection.find({ 'customerInfo.email': req.params.email }).toArray())
+        })
+
+
         /* Customer related APIs end */
 
 
@@ -122,11 +127,11 @@ async function run() {
         })
 
 
+        app.get('/reviews', async (req, res) => {
+            res.send(await reviewCollection.find().toArray())
+        })
+
         /* Review APIs end */
-
-
-
-
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {

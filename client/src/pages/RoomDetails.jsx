@@ -10,6 +10,7 @@ import useAuthValue from "../hooks/useAuthValue";
 import useScrollToTop from "../hooks/useScrollToTop";
 import { User, Mail, ShieldCheck, Home } from "lucide-react";
 import RatingReview from "../components/RatingReview";
+import toast from "react-hot-toast";
 
 const RoomDetails = () => {
   useScrollToTop();
@@ -30,6 +31,8 @@ const RoomDetails = () => {
       console.log(data);
       queryClient.invalidateQueries(["reviews"]);
       setReviewOpen(false);
+      toast.success("Review Added Successfully");
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });
 
@@ -78,7 +81,12 @@ const RoomDetails = () => {
       return alert("Share rating");
     }
     const review = e.target.review.value;
-    const reviewData = { review, rating };
+    const customerDetail = {
+      email: user?.email,
+      name: user?.displayName,
+      photo: user?.photoURL,
+    };
+    const reviewData = { review, rating, customerDetail };
     await mutateAsync(reviewData);
   };
 

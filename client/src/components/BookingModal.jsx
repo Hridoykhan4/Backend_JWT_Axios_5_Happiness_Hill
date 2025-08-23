@@ -41,6 +41,7 @@ const BookingModal = ({ isOpen, onClose, room }) => {
       toast.success("✅ Booking request sent successfully!");
       console.log(data);
       onClose();
+      nav("/my-booking-rooms");
     },
     onError: (error) => {
       toast.error(
