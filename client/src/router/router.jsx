@@ -9,6 +9,7 @@ import MyPosts from "../pages/MyPosts";
 import UpdateRoom from "../pages/UpdateRoom";
 import { AddRoom } from "../pages/AddRoom";
 import PrivateRoute from "./PrivateRoute";
+import About from "../pages/About";
 
 const router = createBrowserRouter([
   {
@@ -30,7 +31,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/rooms/:id",
-        element: <RoomDetails></RoomDetails>,
+        element: (
+          <PrivateRoute>
+            <RoomDetails></RoomDetails>
+          </PrivateRoute>
+        ),
       },
       {
         path: "/my-posts",
@@ -39,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: "/update-room/:id",
         element: <UpdateRoom></UpdateRoom>,
+      },
+      {
+        path: "/about",
+        element: <About></About>,
       },
       {
         path: "/add-room",

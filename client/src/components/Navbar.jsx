@@ -82,7 +82,6 @@ const MoonIcon = ({ className }) => (
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
   </svg>
 );
-
 /* Icons End */
 
 const Navbar = () => {
@@ -107,7 +106,7 @@ const Navbar = () => {
     { label: "Home", to: "/" },
     { label: "Rooms", to: "/all-rooms" },
     { label: "About", to: "/about" },
-    { label: "Contact", to: "/contact" },
+  
   ];
 
   const avatarDropdownLinks = [
@@ -193,6 +192,18 @@ const Navbar = () => {
                         </Link>
                       </>
                     )}
+
+                    {user?.email !== "hridoykhan148385@gmail.com" && (
+                      <>
+                        <Link
+                          to={"/my-booking-rooms"}
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          My Bookings
+                        </Link>
+                      </>
+                    )}
+
                     {avatarDropdownLinks.map((item) => (
                       <Link
                         key={item.label}

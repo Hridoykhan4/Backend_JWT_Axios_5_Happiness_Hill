@@ -4,39 +4,52 @@ import useAuthValue from "../hooks/useAuthValue";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const BookingModal = ({ isOpen, onClose, room }) => {
   const axiosSecure = useAxiosSecure();
   const { user } = useAuthValue();
+  const nav = useNavigate();
   const [formData, setFormData] = useState({
-    name: user?.displayName,
-    email: user?.email,
+    name: user?.displayName || "",
+    email: user?.email || "",
     phone: "",
     date: "",
   });
 
+  // Sync user info when auth changes
   useEffect(() => {
-    (formData.name = user?.displayName), (formData.email = user?.email);
-  }, [user, formData]);
+    setFormData((prev) => ({
+      ...prev,
+      name: user?.displayName || "",
+      email: user?.email || "",
+    }));
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  //  Post a request for a room
-  const { mutateAsync } = useMutation({
+  // Mutation
+  const { mutateAsync, isLoading } = useMutation({
     mutationFn: async (bookingData) => {
       const { data } = await axiosSecure.post("/room-request", bookingData);
       return data;
     },
     onSuccess: (data) => {
-      alert("Success");
+      toast.success("✅ Booking request sent successfully!");
       console.log(data);
+      onClose();
     },
     onError: (error) => {
-      if (error?.response?.data?.message || error?.message) {
-        alert(error?.response?.data?.message);
-      }
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "❌ Something went wrong!"
+      );
+
+      nav("/all-rooms");
     },
   });
 
@@ -58,12 +71,12 @@ const BookingModal = ({ isOpen, onClose, room }) => {
         availableFrom: room?.availableFrom,
       },
     };
+
     if (bookData.customerInfo.bookingDate < room.availableFrom) {
-      return alert("Date must be higher than available from date");
+      return toast.error("⚠️ Date must be after available from date!");
     }
 
     await mutateAsync(bookData);
-    // onClose();
   };
 
   if (!isOpen) return null;
@@ -72,14 +85,23 @@ const BookingModal = ({ isOpen, onClose, room }) => {
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      exit={{ opacity: 0, y: 40 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
-        <h2 className="text-2xl font-bold text-center mb-4">Book This Room</h2>
+      <motion.div
+        initial={{ scale: 0.95 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative"
+      >
+        <h2 className="text-2xl font-bold text-center mb-5 text-gray-900 dark:text-white">
+          🛎️ Book This Room
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            className="w-full input input-bordered rounded-lg p-3 border"
+            className="w-full input input-bordered rounded-lg p-3 border dark:bg-gray-800"
             type="text"
             readOnly
             value={room?.title}
@@ -90,7 +112,7 @@ const BookingModal = ({ isOpen, onClose, room }) => {
             placeholder="Full Name"
             value={formData.name}
             readOnly
-            className="w-full input input-bordered rounded-lg p-3 border"
+            className="w-full input input-bordered rounded-lg p-3 border dark:bg-gray-800"
             required
           />
           <input
@@ -98,7 +120,7 @@ const BookingModal = ({ isOpen, onClose, room }) => {
             placeholder="Email Address"
             value={formData.email}
             readOnly
-            className="w-full input input-bordered rounded-lg p-3 border"
+            className="w-full input input-bordered rounded-lg p-3 border dark:bg-gray-800"
             required
           />
           <input
@@ -107,7 +129,7 @@ const BookingModal = ({ isOpen, onClose, room }) => {
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full input input-bordered rounded-lg p-3 border"
+            className="w-full input input-bordered rounded-lg p-3 border dark:bg-gray-800"
             required
           />
           <input
@@ -116,32 +138,35 @@ const BookingModal = ({ isOpen, onClose, room }) => {
             min={new Date().toISOString().split("T")[0]}
             value={formData.date}
             onChange={handleChange}
-            className="w-full input input-bordered rounded-lg p-3 border"
+            className="w-full input input-bordered rounded-lg p-3 border dark:bg-gray-800"
             required
           />
-          <p className="text-gray-600 text-sm">
+
+          <p className="text-gray-700 dark:text-gray-300 text-sm">
             💰 Price:{" "}
-            <span className="font-semibold text-purple-600">
+            <span className="font-semibold text-purple-600 dark:text-purple-400">
               {room?.price} {room?.currency}
             </span>
           </p>
-          <div className="flex justify-end gap-3 mt-4">
+
+          <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+              className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-xl transition"
+              disabled={isLoading}
+              className="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-xl transition disabled:opacity-50"
             >
-              Confirm Booking
+              {isLoading ? "Processing..." : "Confirm Booking"}
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

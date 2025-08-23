@@ -29,7 +29,7 @@ const RoomDetails = () => {
     onSuccess: (data) => {
       console.log(data);
       queryClient.invalidateQueries(["reviews"]);
-      setReviewOpen(false)
+      setReviewOpen(false);
     },
   });
 
@@ -83,7 +83,7 @@ const RoomDetails = () => {
   };
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-10 space-y-8">
+    <section className="max-w-6xl dark:text-white mx-auto px-4 py-10 space-y-8">
       {/* Hero with overlay */}
       <div className="relative w-full h-96 md:h-[400px] overflow-hidden rounded-2xl shadow-lg">
         <motion.img
@@ -246,7 +246,7 @@ const RoomDetails = () => {
               <div className="flex justify-end mt-4 gap-3">
                 <button
                   onClick={() => setReviewOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-300 dark:bg-gray-700"
+                  className="px-4 py-2 rounded-lg bg-gray-300 dark:bg-red-600 !dark:bg-green-500"
                 >
                   Cancel
                 </button>
