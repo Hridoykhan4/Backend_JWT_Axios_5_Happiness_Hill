@@ -70,6 +70,7 @@ const BookingModal = ({ isOpen, onClose, room }) => {
         price: room?.price,
         currency: room?.currency,
         availableFrom: room?.availableFrom,
+        ownerEmail: 'hridoykhan148385@gmail.com'
       },
     };
 

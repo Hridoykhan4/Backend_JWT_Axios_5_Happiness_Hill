@@ -213,41 +213,47 @@ const Navbar = () => {
                   >
                     {user?.email === "hridoykhan148385@gmail.com" && (
                       <>
-                        <Link
+                        <NavLink
                           to={"/add-room"}
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         >
                           Add Room (Admin)
-                        </Link>
+                        </NavLink>
 
-                        <Link
+                        <NavLink
                           to={"/my-posts"}
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         >
                           My Rooms (Admin)
-                        </Link>
+                        </NavLink>
+                        <NavLink
+                          to={"/dashboard"}
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          My Dashboard
+                        </NavLink>
                       </>
                     )}
 
                     {user?.email !== "hridoykhan148385@gmail.com" && (
                       <>
-                        <Link
+                        <NavLink
                           to={"/my-booking-rooms"}
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         >
                           My Bookings
-                        </Link>
+                        </NavLink>
                       </>
                     )}
 
                     {avatarDropdownLinks.map((item) => (
-                      <Link
+                      <NavLink
                         key={item.label}
                         to={item.to}
                         className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       >
                         {item.label}
-                      </Link>
+                      </NavLink>
                     ))}
                     <button
                       onClick={handleSignOut}
@@ -320,6 +326,16 @@ const Navbar = () => {
           <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
             {avatarDropdownLinks.map((item) => (
               <>
+                {user && (
+                  <div className="flex justify-end">
+                    <img
+                      title={user?.displayName}
+                      className="w-10 h-10 rounded-full object-cover"
+                      referrerPolicy="no-referrer"
+                      src={user?.photoURL}
+                    ></img>
+                  </div>
+                )}
                 <Link
                   key={item.label}
                   to={item.to}
@@ -328,6 +344,40 @@ const Navbar = () => {
                   {item.label}
                 </Link>
 
+                {user?.email === "hridoykhan148385@gmail.com" && (
+                  <>
+                    <NavLink
+                      to={"/add-room"}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      Add Room (Admin)
+                    </NavLink>
+
+                    <NavLink
+                      to={"/my-posts"}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      My Rooms (Admin)
+                    </NavLink>
+                    <NavLink
+                      to={"/dashboard"}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      My Dashboard
+                    </NavLink>
+                  </>
+                )}
+
+                {user?.email !== "hridoykhan148385@gmail.com" && (
+                  <>
+                    <NavLink
+                      to={"/my-booking-rooms"}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      My Bookings
+                    </NavLink>
+                  </>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"

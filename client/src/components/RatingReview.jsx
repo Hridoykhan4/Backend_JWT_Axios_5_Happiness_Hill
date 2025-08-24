@@ -8,7 +8,7 @@ const RatingReview = ({ rating, setRating }) => {
           key={star}
           onClick={() => setRating(star)}
           className={` text-xl font-semibold ${
-            rating >= star ? "text-yellow-600" : "text-gray-600"
+            rating >= star ? "bg-yellow-600" : "bg-gray-600"
           }`}
         >
           <Star></Star>

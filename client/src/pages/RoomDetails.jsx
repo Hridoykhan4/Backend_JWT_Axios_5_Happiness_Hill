@@ -244,7 +244,7 @@ const RoomDetails = () => {
                 className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:text-gray-200"
               ></textarea>
 
-              <div className="my-3">
+              <div className="my-3 bg-transparent">
                 <RatingReview
                   rating={rating}
                   setRating={setRating}

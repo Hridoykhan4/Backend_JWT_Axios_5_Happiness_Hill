@@ -12,6 +12,8 @@ import PrivateRoute from "./PrivateRoute";
 import About from "../pages/About";
 import Register from "../pages/Register";
 import MyBookingRooms from "../pages/MyBookingRooms";
+import MyProfile from "../pages/MyProfile";
+import Dashboard from "../pages/Dashboard";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +56,22 @@ const router = createBrowserRouter([
       {
         path: "/my-posts",
         element: <MyPosts></MyPosts>,
+      },
+      {
+        path: "/my-profile",
+        element: (
+          <PrivateRoute>
+            <MyProfile></MyProfile>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/dashboard",
+        element: (
+          <PrivateRoute>
+            <Dashboard></Dashboard>
+          </PrivateRoute>
+        ),
       },
       {
         path: "/update-room/:id",

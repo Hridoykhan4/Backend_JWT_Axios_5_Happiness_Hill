@@ -6,11 +6,13 @@ import useScrollToTop from "../hooks/useScrollToTop";
 
 const AllRooms = () => {
   useScrollToTop();
+
   const {
     data: rooms = [],
     isLoading,
     isError,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["allRooms"],
     queryFn: async () => {
@@ -23,24 +25,43 @@ const AllRooms = () => {
   });
 
   if (isLoading) {
-    return <LoadingSpinner></LoadingSpinner>;
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
-  if (error || isError) {
+  if (isError) {
     console.error("Something went wrong:", error);
-    ("Oops! An error occurred. Please try again.");
     return (
-      <div className="text-red-600 font-semibold text-center">
-        Failed to load data
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+        <p className="text-red-600 font-semibold mb-4">
+          Oops! Failed to load rooms. Please try again.
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (rooms.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] text-gray-600 dark:text-gray-400 text-lg">
+        No rooms available at the moment.
       </div>
     );
   }
 
   return (
-    <section className="py-10">
-      <div className="grid grid-cols-1 py-10 overflow-hidden sm:grid-cols-2 md:grid-cols-3 gap-5">
+    <section className="py-12 w-[96%] mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-9">
         {rooms.map((room) => (
-          <Room room={room} key={room._id}></Room>
+          <Room room={room} key={room._id} />
         ))}
       </div>
     </section>

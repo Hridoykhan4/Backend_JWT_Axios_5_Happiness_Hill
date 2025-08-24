@@ -1,12 +1,14 @@
 import { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import {useNavigate} from 'react-router-dom'
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import toast from "react-hot-toast";
 export const AddRoom = () => {
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
+  const nav = useNavigate()
   // State to manage all form data
   const [formData, setFormData] = useState({
     title: "",
@@ -106,6 +108,7 @@ export const AddRoom = () => {
       queryClient.invalidateQueries({
         queryKey: ["allRooms", "my-posts", "featureRooms"],
       });
+      nav('/my-posts')
     },
     onError: (error) => {
       console.log(error);
@@ -215,7 +218,7 @@ export const AddRoom = () => {
                 Image URL
               </label>
               <input
-                type="text"
+                type="url"
                 id="image"
                 name="image"
                 value={formData.image}

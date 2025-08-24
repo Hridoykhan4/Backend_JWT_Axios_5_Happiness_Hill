@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
+import toast from "react-hot-toast";
 
 const UpdateRoom = () => {
   const { id } = useParams();
@@ -31,8 +32,13 @@ const UpdateRoom = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log(data);
+      if(data.modifiedCount){
+        toast.success('Room data has updated')
+      }
       queryClient.invalidateQueries(["room", id]);
+      queryClient.invalidateQueries(["my-posts"]);
+      queryClient.invalidateQueries(["featureRooms"]);
+      queryClient.invalidateQueries(["allRooms"]);
 
       navigate("/my-posts");
     },

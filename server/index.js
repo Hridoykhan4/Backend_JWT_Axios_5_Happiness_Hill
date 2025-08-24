@@ -43,6 +43,7 @@ async function run() {
         const roomCollection = client.db('HappinessHill').collection('rooms')
         const customerCollection = client.db('HappinessHill').collection('customers')
         const reviewCollection = client.db('HappinessHill').collection('reviews')
+        const userCollection = client.db('HappinessHill').collection('users')
 
 
         /* Room related APIs start */
@@ -115,6 +116,34 @@ async function run() {
         })
 
 
+        app.get('/dashboard-bookings', async (req, res) => {
+            const result = await customerCollection.find({ 'roomInfo.ownerEmail': 'hridoykhan148385@gmail.com' }).toArray();
+            res.send(result)
+        })
+
+        // PATCH /approve-booking/:id
+        app.patch('/approve-booking/:id', async (req, res) => {
+            try {
+                const bookingId = req.params.id;
+                const filter = { _id: new ObjectId(bookingId) };
+                const updateDoc = {
+                    $set: { approved: true },
+                };
+
+                const result = await customerCollection.updateOne(filter, updateDoc);
+
+                if (result.matchedCount === 0) {
+                    return res.status(404).send({ message: "Booking not found" });
+                }
+
+                res.send({ message: "Booking approved successfully", result });
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ message: "Server error", error: error.message });
+            }
+        });
+
+
         /* Customer related APIs end */
 
 
@@ -132,6 +161,33 @@ async function run() {
         })
 
         /* Review APIs end */
+
+
+        /* Users APIs start */
+        app.put('/users/:email', async (req, res) => {
+            const user = req.body;
+            const email = req.params.email;
+            const query = { userEmail: email };
+            const result = await userCollection.findOne(query);
+            if (!result) {
+                return res.send(await userCollection.insertOne(user))
+            }
+            const updateResult = await userCollection.updateOne(query, { $set: user });
+            res.send(updateResult)
+        })
+
+
+        app.get('/users/:email', async (req, res) => {
+            const { email } = req.params;
+            const result = await userCollection.findOne({ userEmail: email });
+            if (!result) {
+                return res.send({})
+            }
+            res.send(result)
+        })
+
+        /* Users APIs end */
+
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
