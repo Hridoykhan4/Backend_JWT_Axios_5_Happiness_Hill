@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import useAuthValue from "../hooks/useAuthValue";
-import axios from "axios";
+
 import LoadingSpinner from "../components/LoadingSpinner";
 import useScrollToTop from "../hooks/useScrollToTop";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyBookingRooms = () => {
+  const axiosSecure = useAxiosSecure();
   useScrollToTop();
   const { user } = useAuthValue();
 
@@ -17,9 +19,7 @@ const MyBookingRooms = () => {
     queryKey: ["myBookings", user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/my-bookings/${user.email}`
-      );
+      const { data } = await axiosSecure(`/my-bookings/${user.email}`);
       return data;
     },
     enabled: !!user?.email,

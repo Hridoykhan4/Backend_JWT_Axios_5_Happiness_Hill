@@ -4,8 +4,10 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useScrollToTop from "../hooks/useScrollToTop";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const Dashboard = () => {
+  const axiosSecure = useAxiosSecure();
   useScrollToTop();
   const queryClient = useQueryClient();
 
@@ -18,9 +20,7 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ["dashboard-bookings"],
     queryFn: async () => {
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/dashboard-bookings`
-      );
+      const { data } = await axiosSecure(`/dashboard-bookings`);
       return data;
     },
   });

@@ -38,8 +38,9 @@ const BookingModal = ({ isOpen, onClose, room }) => {
       return data;
     },
     onSuccess: (data) => {
-      toast.success("✅ Booking request sent successfully!");
-      console.log(data);
+      if (data?.insertedId) {
+        toast.success("✅ Booking request sent successfully!");
+      }
       onClose();
       nav("/my-booking-rooms");
     },
@@ -70,7 +71,7 @@ const BookingModal = ({ isOpen, onClose, room }) => {
         price: room?.price,
         currency: room?.currency,
         availableFrom: room?.availableFrom,
-        ownerEmail: 'hridoykhan148385@gmail.com'
+        ownerEmail: "hridoykhan148385@gmail.com",
       },
     };
 

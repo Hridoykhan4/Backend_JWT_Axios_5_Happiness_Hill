@@ -1,14 +1,14 @@
 import { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import toast from "react-hot-toast";
 export const AddRoom = () => {
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
-  const nav = useNavigate()
+  const nav = useNavigate();
   // State to manage all form data
   const [formData, setFormData] = useState({
     title: "",
@@ -103,12 +103,13 @@ export const AddRoom = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log(data);
-      toast.success("New Room Added");
+      if (data?.insertedId) {
+        toast.success("New Room Added");
+      }
       queryClient.invalidateQueries({
         queryKey: ["allRooms", "my-posts", "featureRooms"],
       });
-      nav('/my-posts')
+      nav("/my-posts");
     },
     onError: (error) => {
       console.log(error);

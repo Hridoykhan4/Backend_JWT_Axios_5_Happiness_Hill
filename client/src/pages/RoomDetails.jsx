@@ -27,8 +27,7 @@ const RoomDetails = () => {
       const { data } = await axiosSecure.post(`/review`, reviewData);
       return data;
     },
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
       queryClient.invalidateQueries(["reviews"]);
       setReviewOpen(false);
       toast.success("Review Added Successfully");

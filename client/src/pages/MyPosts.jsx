@@ -16,7 +16,9 @@ const MyPosts = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log(data);
+      if(data?.deletedCount) {
+        toast.success('Successfully Deleted')
+      }
       queryClient.invalidateQueries(["my-posts"]);
     },
   });

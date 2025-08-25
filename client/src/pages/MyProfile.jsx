@@ -2,11 +2,16 @@
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useAuthValue from "../hooks/useAuthValue";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const MyProfile = () => {
   const { user, loading } = useAuthValue();
-  
+  const queryClient = useQueryClient();
+  const axiosSecure = useAxiosSecure();
+
   // Tab control
   const [profileInfo, setProfileInfo] = useState("profile-info");
 
@@ -18,12 +23,87 @@ const MyProfile = () => {
     address: "",
   });
 
-  const handleCustomInfo = (e) => {
+  // Query user data
+  const {
+    isLoading,
+    data: realUser = {},
+  } = useQuery({
+    queryKey: ["real-user", user?.email],
+    queryFn: async () => {
+      const { data } = await axiosSecure(`/users/${user?.email}`);
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const { gender, age, birthday, address } = realUser || {};
+
+  // Set initial values when data comes
+  useEffect(() => {
+    if (realUser) {
+      setCustomInfo({
+        gender: gender || "",
+        age: age || "",
+        birthday: birthday || "",
+        address: address || "",
+      });
+    }
+  }, [realUser, age, address, birthday, gender]);
+
+  // Mutation
+  const { mutateAsync } = useMutation({
+    mutationFn: async (info) => {
+      const { data } = await axiosSecure.put(`/users`, {
+        ...info,
+        userEmail: user?.email,
+      });
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data?.modifiedCount > 0 || data?.insertedId) {
+        toast.success("Profile Updated Successfully 🎉", {
+          style: {
+            border: "1px solid #00df9a",
+            padding: "10px",
+            color: "#00df9a",
+          },
+          iconTheme: {
+            primary: "#00df9a",
+            secondary: "white",
+          },
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["real-user", user.email] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong");
+    },
+  });
+
+  const handleCustomInfo = async (e) => {
     e.preventDefault();
-    console.log(customInfo)
+    await mutateAsync(customInfo);
   };
 
-  if (loading) return <LoadingSpinner />;
+  // Format Birthday
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("en-GB", { month: "long" });
+    const year = date.getFullYear();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+    return `${day}${suffix} ${month}, ${year}`;
+  };
+
+  if (loading || isLoading) return <LoadingSpinner />;
 
   // Handle form changes
   const handleChange = (e) => {
@@ -38,24 +118,26 @@ const MyProfile = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="max-w-2xl mx-auto py-10 p-6 bg-white dark:bg-gray-900 rounded-3xl shadow-2xl"
+      className="max-w-2xl mx-auto py-10 px-6 bg-white dark:bg-gray-900 rounded-3xl shadow-2xl"
     >
       {/* Tabs */}
       <div className="text-center py-4 space-x-6">
         <button
           onClick={() => setProfileInfo("profile-info")}
-          className={`dark:text-white text-black font-semibold text-lg ${
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
             profileInfo === "profile-info"
-              ? "underline decoration-violet-500"
-              : ""
+              ? "bg-violet-600 text-white"
+              : "text-gray-700 dark:text-gray-300 hover:text-violet-600"
           }`}
         >
           My Profile
         </button>
         <button
           onClick={() => setProfileInfo("my-info")}
-          className={`dark:text-white text-black font-semibold text-lg ${
-            profileInfo === "my-info" ? "underline decoration-violet-500" : ""
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            profileInfo === "my-info"
+              ? "bg-violet-600 text-white"
+              : "text-gray-700 dark:text-gray-300 hover:text-violet-600"
           }`}
         >
           My Info
@@ -89,36 +171,25 @@ const MyProfile = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6"
           >
-            <div className="p-4 bg-green-50 dark:bg-green-900 rounded-2xl shadow-md text-center">
-              <p className="text-gray-500 dark:text-gray-300">Email Verified</p>
-              <p className="font-semibold text-lg">
-                {user?.emailVerified ? "Yes ✅" : "No ❌"}
-              </p>
-            </div>
-
-            {/* Custom Info Display */}
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-2xl shadow-md text-center">
-              <p className="text-gray-500 dark:text-gray-300">Gender</p>
-              <p className="font-semibold text-lg">
-                {customInfo.gender || "N/A"}
-              </p>
-            </div>
-            <div className="p-4 bg-purple-50 dark:bg-purple-900 rounded-2xl shadow-md text-center">
-              <p className="text-gray-500 dark:text-gray-300">Age</p>
-              <p className="font-semibold text-lg">{customInfo.age || "N/A"}</p>
-            </div>
-            <div className="p-4 bg-pink-50 dark:bg-pink-900 rounded-2xl shadow-md text-center">
-              <p className="text-gray-500 dark:text-gray-300">Birthday</p>
-              <p className="font-semibold text-lg">
-                {customInfo.birthday || "N/A"}
-              </p>
-            </div>
-            <div className="p-4 bg-indigo-50 dark:bg-indigo-900 rounded-2xl shadow-md text-center">
-              <p className="text-gray-500 dark:text-gray-300">Address</p>
-              <p className="font-semibold text-lg">
-                {customInfo.address || "N/A"}
-              </p>
-            </div>
+            {[
+              {
+                label: "Email Verified",
+                value: user?.emailVerified ? "Yes ✅" : "No ❌",
+                color: "green",
+              },
+              { label: "Gender", value: gender || "N/A", color: "yellow" },
+              { label: "Age", value: age || "N/A", color: "purple" },
+              { label: "Birthday", value: formatDate(birthday), color: "pink" },
+              { label: "Address", value: address || "N/A", color: "indigo" },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className={`p-4 bg-${item.color}-50 dark:bg-${item.color}-900 rounded-2xl shadow-md text-center`}
+              >
+                <p className="text-gray-500 dark:text-gray-300">{item.label}</p>
+                <p className="font-semibold text-lg">{item.value}</p>
+              </div>
+            ))}
           </motion.div>
         </>
       )}
@@ -132,8 +203,9 @@ const MyProfile = () => {
           transition={{ duration: 0.6 }}
           className="mt-8 space-y-6"
         >
+          {/* Gender */}
           <div>
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
               Gender
             </label>
             <select
@@ -141,7 +213,7 @@ const MyProfile = () => {
               required
               value={customInfo.gender}
               onChange={handleChange}
-              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-500"
             >
               <option value="">Select Gender</option>
               <option value="Male">Male ♂️</option>
@@ -149,8 +221,9 @@ const MyProfile = () => {
             </select>
           </div>
 
+          {/* Age */}
           <div>
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
               Age
             </label>
             <input
@@ -159,41 +232,48 @@ const MyProfile = () => {
               name="age"
               value={customInfo.age}
               onChange={handleChange}
-              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-500"
             />
           </div>
 
+          {/* Birthday */}
           <div>
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
               Birthday
             </label>
             <input
               required
-
               type="date"
               name="birthday"
-              value={customInfo.birthday}
+              value={
+                customInfo.birthday
+                  ? new Date(customInfo.birthday).toISOString().split("T")[0]
+                  : ""
+              }
               onChange={handleChange}
-              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-500"
             />
           </div>
 
+          {/* Address */}
           <div>
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
               Address
             </label>
             <textarea
               required
               name="address"
-              value={customInfo.address}
+              defaultValue={address}
               onChange={handleChange}
               rows="3"
-              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="w-full p-3 rounded-xl border dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-500"
             ></textarea>
           </div>
+
+          {/* Submit */}
           <div className="text-center">
-            <button className="font-semibold dark:bg-white p-3 rounded-md bg-green-600">
-              Submit
+            <button className="px-6 py-3 rounded-xl font-semibold bg-violet-600 text-white hover:bg-violet-700 transition">
+              Save Changes
             </button>
           </div>
         </motion.form>
