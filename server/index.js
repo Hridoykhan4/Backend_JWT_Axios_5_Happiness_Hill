@@ -1,4 +1,6 @@
 require('dotenv').config()
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const app = express();
@@ -6,24 +8,42 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 
 
-
 /* Options Start */
 const corsOptions = {
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173', "https://hotel-happiness-hill.web.app", "https://hotel-happiness-hill.firebaseapp.com"],
     credentials: true,
     optionsSuccessStatus: 200
 }
 
-
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? "none" : 'strict'
+}
 
 /* Options End */
-
-
 
 
 // MiddleWare Start
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(cookieParser())
+
+// Custom
+const verifyToken = (req, res, next) => {
+    const token = req?.cookies?.token;
+    if (!token) {
+        return res.status(401).send({ message: 'Unauthorized Access' })
+    }
+    jwt.verify(token, process.env.HAPPINESS_ACCESS_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'Unauthorized Access' })
+        }
+        req.user = decoded
+        next()
+    })
+}
+
 
 // MiddleWare End
 
@@ -45,15 +65,65 @@ async function run() {
         const reviewCollection = client.db('HappinessHill').collection('reviews')
         const userCollection = client.db('HappinessHill').collection('users')
 
+        /* JWT related APIs start */
+
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.HAPPINESS_ACCESS_TOKEN);
+            res.cookie('token', token, cookieOptions).send({ success: true })
+        })
+
+        app.get('/logout', (req, res) => {
+            res.clearCookie('token', { ...cookieOptions, maxAge: 0 }).send({ signOut: true });
+        })
+
+        /* JWT related APIs end*/
+
+
+
+        /* Pagination APIs start */
+
+        app.get('/roomCount', async (req, res) => {
+            const { searchText, minPrice, maxPrice } = req.query;
+            let query = {};
+            if (searchText) query.title = { $regex: searchText, $options: "i" };
+            if (minPrice && maxPrice) {
+                query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+            }
+            const count = await roomCollection.countDocuments(query)
+            res.send({ count });
+
+        })
+
+
+        /* Pagination APIs end*/
+
 
         /* Room related APIs start */
         app.get('/rooms', async (req, res) => {
-            const { featuredRooms } = req.query;
-            let cursor = roomCollection.find()
-            if (featuredRooms === 'featured') {
-                cursor = cursor.sort({ "price": -1 }).limit(5)
+            const { featuredRooms, sortBy, searchText, minPrice, maxPrice } = req.query;
+            let page = parseInt(req.query.page) - 1 || 0
+            let size = parseInt(req.query.size) || 4;
+            let sort = {};
+            let query = {};
+
+            if (searchText) query.title = { $regex: searchText, $options: "i" };
+
+            if (minPrice && maxPrice) {
+                query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
             }
-            const result = await cursor.toArray()
+
+            if (sortBy === 'priceHighToLow') sort.price = -1
+
+            if (sortBy === 'priceLowToHigh') sort.price = 1
+
+            let cursor = roomCollection.find(query)
+            if (featuredRooms === 'featured') {
+                cursor = cursor.sort({ "price": -1 }).limit(5);
+                const result = await cursor.toArray();
+                res.send(result)
+            }
+            const result = await cursor.sort(sort).skip(page * size).limit(size).toArray()
             res.send(result)
         })
 
@@ -65,8 +135,11 @@ async function run() {
         })
 
         // Get all post by the owner
-        app.get('/my-posted-rooms/:email', async (req, res) => {
+        app.get('/my-posted-rooms/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
+            if (req.user.email !== email) {
+                return res.status(403).send({ message: 'Forbidden Access' })
+            }
             const result = await roomCollection.find({ 'ownerInfo.email': email }).toArray();
             res.send(result)
         })
@@ -111,12 +184,19 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/my-bookings/:email', async (req, res) => {
+        app.get('/my-bookings/:email', verifyToken, async (req, res) => {
+            if (req.user.email !== req.params.email)
+                return res.status(403).send({ message: 'Forbidden Access' })
+
             res.send(await customerCollection.find({ 'customerInfo.email': req.params.email }).toArray())
         })
 
 
-        app.get('/dashboard-bookings', async (req, res) => {
+        app.get('/dashboard-bookings', verifyToken, async (req, res) => {
+            if (req.user?.email !== 'hridoykhan148385@gmail.com') {
+                return res.status(403).send({ message: 'Forbidden Access' })
+
+            }
             const result = await customerCollection.find({ 'roomInfo.ownerEmail': 'hridoykhan148385@gmail.com' }).toArray();
             res.send(result)
         })
@@ -164,10 +244,9 @@ async function run() {
 
 
         /* Users APIs start */
-        app.put('/users/:email', async (req, res) => {
+        app.put('/users', async (req, res) => {
             const user = req.body;
-            const email = req.params.email;
-            const query = { userEmail: email };
+            const query = { userEmail: user?.userEmail };
             const result = await userCollection.findOne(query);
             if (!result) {
                 return res.send(await userCollection.insertOne(user))
